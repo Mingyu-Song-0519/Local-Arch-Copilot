@@ -1,0 +1,12 @@
+# Docker Ignore file
+.venv
+__pycache__
+*.pyc
+.git
+.pytest_cache
+.coverage
+dist
+build
+*.egg-info
+storage/cache
+.env

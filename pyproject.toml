@@ -1,0 +1,109 @@
+[build-system]
+requires = ["setuptools>=68.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "arch-copilot"
+version = "0.1.0"
+description = "Local Architecture Copilot powered by GPT-OSS-20B"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+authors = [
+    {name = "Developer", email = "dev@example.com"}
+]
+keywords = ["architecture", "python", "ast", "clean-architecture", "ai"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = [
+    "nicegui>=1.4.0",
+    "networkx>=3.0",
+    "pydantic>=2.0",
+    "pydantic-settings>=2.0",
+    "httpx>=0.24.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0",
+    "mypy>=1.0",
+    "ruff>=0.1.0",
+    "pre-commit>=3.0",
+]
+ai = [
+    "ollama>=0.1.0",
+]
+docs = [
+    "sphinx>=7.0",
+    "sphinx-rtd-theme>=2.0",
+]
+all = [
+    "arch-copilot[dev,ai,docs]",
+]
+
+[project.scripts]
+arch-copilot = "arch_copilot.main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["arch_copilot*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+addopts = "-v --tb=short"
+
+[tool.black]
+line-length = 100
+target-version = ['py312']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.venv
+    | __pycache__
+    | build
+    | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+select = ["E", "F", "I", "N", "W", "B", "UP"]
+ignore = ["E501"]
+
+[tool.ruff.isort]
+known-first-party = ["arch_copilot"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.coverage.run]
+source = ["arch_copilot"]
+omit = ["tests/*", "**/__pycache__/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]

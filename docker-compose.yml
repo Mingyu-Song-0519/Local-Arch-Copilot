@@ -3,10 +3,10 @@ services:
     container_name: arch-copilot-app
     build: .
     ports:
-      - "8080:8080"
+      - "7070:7070"
     environment:
-      - PORT=8080
-      - UI_PORT=8080
+      - PORT=7070
+      - UI_PORT=7070
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped

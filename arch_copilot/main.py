@@ -25,7 +25,7 @@ def main() -> None:
 
     # 3. Start NiceGUI
     import os
-    port = int(os.environ.get('PORT', 8080))
+    port = int(os.environ.get('PORT', 7070))
     ui.run(
         title="Local Arch-Copilot",
         port=port,

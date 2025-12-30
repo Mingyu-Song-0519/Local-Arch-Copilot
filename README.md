@@ -63,7 +63,7 @@ cd Local-Arch-Copilot
 # 빌드 및 백그라운드 실행
 docker-compose up -d --build
 ```
-- 접속 주소: `http://localhost:8080`
+- 접속 주소: `http://localhost:7070`
 - 호스트의 로컬 AI 서버(Ollama 등)와 연동하려면 Settings에서 주소를 `http://host.docker.internal:포트`로 설정하세요.
 
 ### 방법 2: 로컬 Python 환경 사용
@@ -87,7 +87,7 @@ pip install -e ".[ai]"
 ```bash
 python arch_copilot/main.py
 ```
-접속 주소: `http://localhost:8080`
+접속 주소: `http://localhost:7070`
 
 ---
 

@@ -27,7 +27,6 @@ def base_layout(title: str = "Local Arch-Copilot"):
         
         with ui.row().classes('gap-6 items-center'):
             ui.link('Dashboard', '/').classes('text-gray-300 hover:text-white transition-colors')
-            ui.link('Graph', '/graph').classes('text-gray-300 hover:text-white transition-colors')
             ui.link('Settings', '/settings').classes('text-gray-300 hover:text-white transition-colors')
             ui.button(icon='dark_mode', on_click=ui.dark_mode().toggle).props('flat round color=white')
 

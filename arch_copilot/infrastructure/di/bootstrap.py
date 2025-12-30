@@ -9,8 +9,11 @@ from arch_copilot.infrastructure.di.container import get_container
 from arch_copilot.infrastructure.ast_parser.ast_parser import ASTParser
 from arch_copilot.infrastructure.ast_parser.project_scanner import ASTProjectScanner
 from arch_copilot.infrastructure.graph_engine.graph_engine import GraphEngine
-from arch_copilot.infrastructure.ai_client.vllm_client import VLLMClient
 from arch_copilot.domain.services.analysis_service import AnalysisService
+from arch_copilot.domain.ai.i_ai_analyzer import IAIAnalyzer
+from arch_copilot.domain.ai.i_llm_client import ILLMClient
+from arch_copilot.infrastructure.ai_client.llm_client_factory import LLMClientFactory
+from arch_copilot.infrastructure.ai_client.vllm_analyzer import VLLMAnalyzer
 from arch_copilot.application.use_cases.analyze_project import AnalyzeProjectUseCase
 
 
@@ -24,7 +27,7 @@ def bootstrap_container() -> None:
     container.register_singleton(IConfig, config)
 
     # Infrastructure 등록
-    ast_parser = ASTParser(project_root=Path(".").resolve()) # 기본 경로는 실행 위치 (절대 경로로 변환)
+    ast_parser = ASTParser() # 동적 경로 처리를 위해 인자 제거
     container.register_singleton(ASTParser, ast_parser)
     
     scanner = ASTProjectScanner(ast_parser)
@@ -32,14 +35,27 @@ def bootstrap_container() -> None:
     
     graph_engine = GraphEngine()
     container.register_singleton(GraphEngine, graph_engine)
+    # 4. Infrastructure - AI Client & Analyzer (동적 생성을 위해 팩토리로 등록)
+    container.register_factory(
+        ILLMClient,
+        lambda: LLMClientFactory.create(container.resolve(IConfig))
+    )
     
-    ai_client = VLLMClient()
-    container.register_singleton(VLLMClient, ai_client)
+    container.register_factory(
+        IAIAnalyzer,
+        lambda: VLLMAnalyzer(container.resolve(ILLMClient))
+    )
 
     # Domain Services 등록
     analysis_service = AnalysisService()
     container.register_singleton(AnalysisService, analysis_service)
 
-    # Application Use Cases 등록
-    analyze_use_case = AnalyzeProjectUseCase(analysis_service)
-    container.register_singleton(AnalyzeProjectUseCase, analyze_use_case)
+    # 5. Application - Use Cases
+    container.register_factory(
+        AnalyzeProjectUseCase,
+        lambda: AnalyzeProjectUseCase(
+            analysis_service=container.resolve(AnalysisService),
+            scanner=container.resolve(ASTProjectScanner),
+            ai_analyzer=container.resolve(IAIAnalyzer)
+        )
+    )

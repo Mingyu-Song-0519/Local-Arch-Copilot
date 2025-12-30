@@ -14,6 +14,31 @@ class IConfig(Protocol):
         """사용할 모델 이름"""
         ...
 
+    # --- 멀티 LLM 공급자 설정 ---
+    @property
+    def llm_provider(self) -> str:
+        """LLM 공급자 (vllm, ollama, lmstudio, gemini, openai, anthropic)"""
+        ...
+
+    @property
+    def llm_base_url(self) -> str | None:
+        """로컬 LLM 서버 URL (Ollama/LMStudio용)"""
+        ...
+
+    @property
+    def llm_api_key(self) -> str | None:
+        """클라우드 LLM API Key (Gemini/OpenAI용)"""
+        ...
+
+    @property
+    def llm_model(self) -> str:
+        """선택된 모델 이름"""
+        ...
+
+    def update_settings(self, settings: dict[str, any]) -> None:
+        """설정 업데이트 및 영구 저장"""
+        ...
+
     @property
     def max_context_length(self) -> int:
         """최대 컨텍스트 길이"""

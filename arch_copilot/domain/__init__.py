@@ -1,5 +1,9 @@
 """
-Domain Layer - 비즈니스 로직의 핵심
+from .entities.project import ProjectStructure, FileNode
+from .entities.violation import ArchitectureViolation, ViolationType
+from .services.analysis_service import AnalysisService
+from .ai.i_ai_analyzer import IAIAnalyzer
+from .exceptions import AIAnalysisError, DomainException
 
 Clean Architecture의 가장 안쪽 계층으로, 외부 의존성이 없어야 합니다.
 - entities: 도메인 엔티티 (ProjectStructure, FileNode 등)

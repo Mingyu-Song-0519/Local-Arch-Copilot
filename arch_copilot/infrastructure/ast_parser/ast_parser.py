@@ -14,11 +14,15 @@ from arch_copilot.domain.entities.project import FileNode
 class ASTParser:
     """Python AST를 이용한 소스 코드 분석기"""
 
-    def __init__(self, project_root: Path) -> None:
+    def __init__(self, project_root: Path | None = None) -> None:
         self.project_root = project_root
 
-    def parse_file(self, file_path: Path) -> FileNode:
+    def parse_file(self, file_path: Path, root_path: Path | None = None) -> FileNode:
         """단일 파일을 분석하여 FileNode를 반환합니다."""
+        effective_root = root_path or self.project_root
+        if not effective_root:
+            raise ValueError("Project root must be provided either in constructor or parse_file.")
+            
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
@@ -30,10 +34,10 @@ class ASTParser:
             functions = [node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)]
             
             # 레이어 추정 (디렉토리 구조 기반)
-            layer = self._detect_layer(file_path)
+            layer = self._detect_layer(file_path, effective_root)
 
             return FileNode(
-                path=file_path.relative_to(self.project_root),
+                path=file_path.relative_to(effective_root),
                 imports=imports,
                 layer=layer,
                 classes=classes,
@@ -41,7 +45,7 @@ class ASTParser:
             )
         except Exception:
             # 파싱 실패 시 최소 정보만 가진 노드 반환
-            return FileNode(path=file_path.relative_to(self.project_root))
+            return FileNode(path=file_path.relative_to(effective_root))
 
     def _extract_imports(self, tree: ast.AST) -> Set[str]:
         """추출된 import 목록을 반환합니다."""
@@ -55,14 +59,17 @@ class ASTParser:
                     imports.add(node.module)
         return imports
 
-    def _detect_layer(self, file_path: Path) -> str | None:
+    def _detect_layer(self, file_path: Path, root_path: Path) -> str | None:
         """파일 경로에서 아키텍처 레이어를 추정합니다."""
-        parts = file_path.relative_to(self.project_root).parts
-        # 예: arch_copilot/domain/entities/user.py -> domain
-        #     application/use_cases/login.py -> application
-        
-        layers = ["domain", "application", "infrastructure", "presentation"]
-        for part in parts:
-            if part in layers:
-                return part
+        try:
+            parts = file_path.relative_to(root_path).parts
+            # 예: arch_copilot/domain/entities/user.py -> domain
+            #     application/use_cases/login.py -> application
+            
+            layers = ["domain", "application", "infrastructure", "presentation"]
+            for part in parts:
+                if part in layers:
+                    return part
+        except ValueError:
+            pass
         return None

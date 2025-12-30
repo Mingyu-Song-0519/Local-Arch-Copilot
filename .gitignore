@@ -39,3 +39,9 @@ models/
 # OS
 .DS_Store
 Thumbs.db
+
+# Project logs & Junk
+error.txt
+*.log
+docs/BUG_FIX_SUMMARY.md
+.gemini/

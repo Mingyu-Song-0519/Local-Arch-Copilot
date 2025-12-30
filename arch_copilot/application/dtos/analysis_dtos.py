@@ -27,4 +27,5 @@ class AnalysisResult:
     violations: List[ArchitectureViolation]
     summary: str
     duration_seconds: float
+    ai_recommendations: Optional[str] = None # NEW: AI 기반 리팩토링 제안
     error_message: Optional[str] = None

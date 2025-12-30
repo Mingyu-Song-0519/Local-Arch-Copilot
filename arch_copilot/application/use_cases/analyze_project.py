@@ -12,26 +12,44 @@ from arch_copilot.domain.entities.project import ProjectStructure
 from arch_copilot.domain.services.analysis_service import AnalysisService
 
 
+from arch_copilot.domain.ai.i_ai_analyzer import IAIAnalyzer
+from arch_copilot.domain.exceptions import AIAnalysisError
+from arch_copilot.infrastructure.ast_parser.project_scanner import ASTProjectScanner
+
+
 class AnalyzeProjectUseCase:
     """프로젝트 분석 실행 유스케이스"""
 
-    def __init__(self, analysis_service: AnalysisService) -> None:
+    def __init__(self, analysis_service: AnalysisService, scanner: ASTProjectScanner, ai_analyzer: IAIAnalyzer = None) -> None:
         self._analysis_service = analysis_service
+        self._scanner = scanner
+        self._ai_analyzer = ai_analyzer
 
-    def execute(self, request: AnalysisRequest) -> AnalysisResult:
-        """분석 유스케이스 실행"""
+    async def execute(self, request: AnalysisRequest, project: ProjectStructure | None = None) -> AnalysisResult:
+        """분석 유스케이스 실행 (비동기 처리 지원)"""
         start_time = time.time()
         
         try:
-            # 1. 프로젝트 스캔 (Infrastructure Layer에서 실제 구현 예정, 현재는 스켈레톤)
-            # 추후 IProjectScanner 인터페이스를 주입받아 사용해야 함.
-            # 지금은 수동으로 빈 구조를 만듭니다.
-            project = ProjectStructure(root_path=request.project_path)
+            # 1. 프로젝트 스캔
+            if project is None:
+                project = self._scanner.scan(request.project_path, request.exclude_patterns)
             
-            # 2. 도메인 서비스를 이용한 정적 분석
+            # 2. 정적 분석
             violations = self._analysis_service.detect_static_violations(project)
             
-            # 3. 결과 생성
+            # 3. AI 기반 심층 분석 (vLLM)
+            ai_recommendations = None
+            if self._ai_analyzer and violations:
+                try:
+                    # AI 분석은 시간이 걸릴 수 있으므로 105개 위반 사항 중심 분석
+                    ai_recommendations = await self._ai_analyzer.analyze_violations(
+                        violations, 
+                        str(request.project_path)
+                    )
+                except Exception as e:
+                    print(f"DEBUG: AI Analysis skipped/failed: {str(e)}")
+            
+            # 4. 결과 생성
             duration = time.time() - start_time
             summary = f"Analyzed {project.total_files} files. Found {len(violations)} violations."
             
@@ -40,7 +58,8 @@ class AnalyzeProjectUseCase:
                 total_files=project.total_files,
                 violations=violations,
                 summary=summary,
-                duration_seconds=duration
+                duration_seconds=duration,
+                ai_recommendations=ai_recommendations
             )
             
         except Exception as e:

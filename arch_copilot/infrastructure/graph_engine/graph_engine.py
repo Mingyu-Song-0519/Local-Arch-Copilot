@@ -19,24 +19,40 @@ class GraphEngine:
     def __init__(self) -> None:
         self.graph = nx.DiGraph()
 
-    def build_graph(self, project: ProjectStructure) -> None:
-        """ProjectStructure로부터 의존성 그래프를 빌드합니다."""
-        self.graph.clear()
+    def build_graph(self, project: ProjectStructure, violations: List[ArchitectureViolation] = None) -> nx.DiGraph:
+        """ProjectStructure로부터 의존성 그래프를 빌드하며, 위반 사항 정보도 주입합니다."""
+        graph = nx.DiGraph()
         
-        # 노드 추가
+        # 1. 노드 추가
         for file_path in project.files:
             node_name = str(file_path).replace("\\", "/")
-            self.graph.add_node(node_name, layer=project.files[file_path].layer)
+            graph.add_node(node_name, layer=project.files[file_path].layer)
             
-        # 에지 추가 (의존성)
+        # 2. 에지 추가 (의존성)
         for file_path, node in project.files.items():
             source_name = str(file_path).replace("\\", "/")
             for imp in node.imports:
                 target = self._find_target_file(imp, project)
                 if target:
                     target_name = str(target).replace("\\", "/")
-                    self.graph.add_edge(source_name, target_name)
-                    # print(f"DEBUG: Edge added {source_name} -> {target_name}")
+                    graph.add_edge(source_name, target_name, has_violation=False)
+        
+        # 3. 위반 사항 주입 (엣지 강조용)
+        if violations:
+            for v in violations:
+                # source_file에서 target_file로의 의존성이 위반된 경우
+                # v.message에 타겟 정보가 포함되어 있거나, source_file 기준으로 매칭 시도
+                u = str(v.source_file).replace("\\", "/")
+                # DiGraph의 모든 엣지를 돌며 source가 u인 것 중 위반과 관련된 엣지 탐색
+                if u in graph:
+                    for _, v_target, data in graph.edges(u, data=True):
+                        # 간단한 정책: 위반 리스트에 있는 파일에서 나가는 모든 의존성 선에 마킹 (추후 정밀 매칭 가능)
+                        data['has_violation'] = True
+                        data['violation_message'] = v.message
+        
+        self.graph = graph
+        print(f"DEBUG: Graph built. Nodes: {len(graph.nodes)}, Edges: {len(graph.edges)}, Violations Marked: {len(violations) if violations else 0}")
+        return graph
 
     def detect_cycles(self) -> List[ArchitectureViolation]:
         """순환 참조(Circular Dependency)를 탐지합니다."""

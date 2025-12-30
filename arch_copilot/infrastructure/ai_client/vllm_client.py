@@ -11,10 +11,10 @@ from typing import Any, Dict, List, Optional
 class VLLMClient:
     """vLLM 서버 전용 OpenAI 호환 클라이언트"""
 
-    def __init__(self, base_url: str = "http://localhost:8000/v1", model_name: str = "openai/gpt-oss-20b") -> None:
+    def __init__(self, base_url: str = "http://localhost:11434/v1", model_name: str = "mistral-24b:latest") -> None:
         self.base_url = base_url
         self.model_name = model_name
-        self.timeout = httpx.Timeout(120.0, connect=10.0) # 긴 추론 대기 시간 고려
+        self.timeout = httpx.Timeout(180.0, connect=10.0) # 24B 모델의 추론 속도 고려 시간 연장
 
     async def generate(self, prompt: str, max_tokens: int = 2048, temperature: float = 0.7) -> str:
         """텍스트 생성을 요청합니다."""

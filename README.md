@@ -1,3 +1,13 @@
+---
+title: Local Arch-Copilot
+emoji: 🔍
+colorFrom: indigo
+colorTo: blue
+sdk: docker
+app_port: 8080
+pinned: false
+---
+
 # 🔍 Local Arch-Copilot
 
 **"클린 코드를 넘어, 클린 아키텍처로 가는 가장 빠른 길"**

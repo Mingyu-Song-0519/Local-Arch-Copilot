@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Skill(feature-planner)",
-      "Skill(feature-planner:*)"
-    ]
-  }
-}

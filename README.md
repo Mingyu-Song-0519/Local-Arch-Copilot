@@ -37,13 +37,31 @@ Local Arch-Copilot은 Python 프로젝트의 **Clean Architecture** 준수 여�
 
 ---
 
-## 🛠️ Quick Start
+---
 
-### 1. 환경 구성
+## 🛠️ Installation & Running
+
+아래의 두 가지 방법 중 원하는 방식으로 실행할 수 있습니다.
+
+### 방법 1: Docker 사용 (추천 🐳)
+Docker와 Docker Compose가 설치되어 있다면 가장 빠르고 안정적으로 실행할 수 있습니다.
+
+```bash
+# 저장소 복제 및 이동
+git clone https://github.com/Mingyu-Song-0519/Local-Arch-Copilot.git
+cd Local-Arch-Copilot
+
+# 빌드 및 백그라운드 실행
+docker-compose up -d --build
+```
+- 접속 주소: `http://localhost:8080`
+- 호스트의 로컬 AI 서버(Ollama 등)와 연동하려면 Settings에서 주소를 `http://host.docker.internal:포트`로 설정하세요.
+
+### 방법 2: 로컬 Python 환경 사용
 Python 3.12 이상의 환경이 필요합니다.
 
 ```bash
-# 저장소 복제
+# 저장소 복제 및 이동
 git clone https://github.com/Mingyu-Song-0519/Local-Arch-Copilot.git
 cd Local-Arch-Copilot
 
@@ -53,15 +71,14 @@ source .venv/bin/activate  # Linux/WSL
 # .venv\Scripts\activate  # Windows
 
 # 필수 패키지 설치
-pip install -e "."
-pip install google-generativeai anthropic openai  # 클라우드 AI 사용 시
+pip install -e ".[ai]"
 ```
 
-### 2. 실행
+**애플리케이션 실행:**
 ```bash
 python arch_copilot/main.py
 ```
-실행 후 브라우저에서 `http://localhost:8080`에 접속하세요.
+접속 주소: `http://localhost:8080`
 
 ---
 

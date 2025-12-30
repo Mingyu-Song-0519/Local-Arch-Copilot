@@ -19,8 +19,9 @@ COPY . /app
 # Python 의존성 설치 (모든 AI SDK 포함)
 RUN pip install --no-cache-dir -e ".[ai]"
 
-# NiceGUI 포트 노출
-EXPOSE 8080
+# NiceGUI 포트 설정 (Hugging Face Spaces 기본값 7860)
+ENV PORT=7860
+EXPOSE 7860
 
 # 애플리케이션 실행
 CMD ["python", "arch_copilot/main.py"]

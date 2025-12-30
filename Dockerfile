@@ -16,8 +16,8 @@ RUN apt-get update && apt-get install -y \
 # 프로젝트 파일 복사
 COPY . /app
 
-# Python 의존성 설치
-RUN pip install --no-cache-dir -e .
+# Python 의존성 설치 (모든 AI SDK 포함)
+RUN pip install --no-cache-dir -e ".[ai]"
 
 # NiceGUI 포트 노출
 EXPOSE 8080

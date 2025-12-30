@@ -8,5 +8,13 @@ __pycache__
 dist
 build
 *.egg-info
-storage/cache
-.env
+# Project Junk
+tests/
+docs/
+.gemini/
+.claude/
+*.md
+*.bat
+scripts/
+error.txt
+tracked_files.txt
